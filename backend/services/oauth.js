@@ -1,4 +1,3 @@
-// services/oauth.js
 const axios = require('axios');
 
 const SOCIAL_APIS = {
