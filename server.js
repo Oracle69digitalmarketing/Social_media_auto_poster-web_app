@@ -1,4 +1,4 @@
-// app.js
+// server.js
 const express = require('express');
 const cors = require('cors');
 const cron = require('node-cron');
