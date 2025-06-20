@@ -1,78 +1,54 @@
 // server.js
+
+// Load environment variables and validate them
+const dotenv = require('dotenv');
+dotenv.config();
+require('./utils/validateEnv');
+
+// Core modules
 const express = require('express');
 const cors = require('cors');
 const cron = require('node-cron');
-const dotenv = require('dotenv');
-const compression = require('compression');
-const rateLimit = require('express-rate-limit');
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
 
+// Database and route initializers
 const { initDatabase } = require('./models/init');
 const authRoutes = require('./routes/auth');
 const postRoutes = require('./routes/posts');
 const oauthRoutes = require('./routes/oauth');
 const accountRoutes = require('./routes/accounts');
+
+// Scheduled job handler
 const { handleScheduledPosts } = require('./services/scheduler');
+
+// Global error handler
 const errorHandler = require('./middlewares/errorHandler');
 
-// app.js
-const dotenv = require('dotenv');
-dotenv.config();
-
-const validateEnv = require('./utils/validateEnv');
-validateEnv();
-
-dotenv.config();
-
+// Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Core middleware
+// Middleware setup
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
-app.use(compression());
+app.use(express.static('public')); // Serves static frontend files from /public
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: 'Too many requests from this IP, please try again later.',
-});
-app.use('/api/', limiter);
-
-// API routes
+// Route definitions
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/oauth', oauthRoutes);
 app.use('/api/accounts', accountRoutes);
 
-// Swagger API Docs
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Social Media Poster API',
-      version: '1.0.0',
-      description: 'API documentation for backend services',
-    },
-    servers: [{ url: process.env.BASE_URL }],
-  },
-  apis: ['./routes/*.js'],
-};
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-// Error middleware
+// Error handling middleware (should come after all routes)
 app.use(errorHandler);
 
-// Init DB and start
+// Initialize DB and start server
 initDatabase().then(() => {
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  app.listen(PORT, () => {
+    console.log(`✅ Server running on http://localhost:${PORT}`);
+  });
 });
 
-// Background job scheduler
+// Schedule cron job for auto-posting every minute
 cron.schedule('* * * * *', handleScheduledPosts);
 
 module.exports = app;
