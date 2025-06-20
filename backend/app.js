@@ -16,6 +16,13 @@ const accountRoutes = require('./routes/accounts');
 const { handleScheduledPosts } = require('./services/scheduler');
 const errorHandler = require('./middlewares/errorHandler');
 
+// app.js
+const dotenv = require('dotenv');
+dotenv.config();
+
+const validateEnv = require('./utils/validateEnv');
+validateEnv();
+
 dotenv.config();
 
 const app = express();
