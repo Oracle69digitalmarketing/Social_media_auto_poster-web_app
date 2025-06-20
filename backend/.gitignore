@@ -4,10 +4,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 dist/
+build/                # <-- add if using frontend builds
 
 # Environment
 .env
 .env.*
+.env.local            # <-- for Vercel/Netlify style overrides
 
 # Logs
 logs/
@@ -22,3 +24,8 @@ docker-compose.override.yml
 
 # Tests
 coverage/
+jest.config.js        # <-- ignore Jest config if you want cleaner repo
+test-results/         # <-- if you save test outputs
+
+# VS Code
+.vscode/              # <-- IDE settings, optional
