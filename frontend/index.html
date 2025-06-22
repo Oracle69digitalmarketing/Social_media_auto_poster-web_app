@@ -32,7 +32,6 @@
             color: white;
             padding: 30px;
             text-align: center;
-            position: relative;
         }
 
         .header h1 {
@@ -43,43 +42,6 @@
         .header p {
             opacity: 0.9;
             font-size: 1.1rem;
-        }
-
-        .auth-section {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .auth-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .auth-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .login-form {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            margin: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .login-form h2 {
-            margin-bottom: 20px;
-            color: #333;
-            text-align: center;
         }
 
         .main-content {
@@ -101,7 +63,6 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
         }
 
         .platform-card:hover {
@@ -114,39 +75,10 @@
             background: #e7f3ff;
         }
 
-        .platform-card.connected::after {
-            content: '✓';
-            position: absolute;
-            top: 5px;
-            right: 10px;
-            color: #28a745;
-            font-weight: bold;
-        }
-
-        .platform-card.disconnected::after {
-            content: '!';
-            position: absolute;
-            top: 5px;
-            right: 10px;
-            color: #dc3545;
-            font-weight: bold;
-        }
-
         .platform-icon {
             font-size: 2rem;
             margin-bottom: 10px;
             display: block;
-        }
-
-        .connect-btn {
-            background: #0077b5;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 5px;
         }
 
         .compose-section {
@@ -217,12 +149,6 @@
             box-shadow: 0 10px 20px rgba(0,119,181,0.3);
         }
 
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .btn-secondary {
             background: #6c757d;
         }
@@ -285,15 +211,6 @@
             border-radius: 20px;
         }
 
-        .hidden {
-            display: none;
-        }
-
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
         @media (max-width: 768px) {
             .schedule-section {
                 grid-template-columns: 1fr;
@@ -305,3 +222,296 @@
         }
     </style>
 </head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Social Media Auto-Poster</h1>
+            <p>Schedule and manage posts across all your platforms</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Platform Selection -->
+            <div class="platform-selector">
+                <div class="platform-card active" data-platform="linkedin">
+                    <span class="platform-icon">🔗</span>
+                    <strong>LinkedIn</strong>
+                </div>
+                <div class="platform-card" data-platform="twitter">
+                    <span class="platform-icon">🐦</span>
+                    <strong>Twitter/X</strong>
+                </div>
+                <div class="platform-card" data-platform="facebook">
+                    <span class="platform-icon">📘</span>
+                    <strong>Facebook</strong>
+                </div>
+                <div class="platform-card" data-platform="instagram">
+                    <span class="platform-icon">📷</span>
+                    <strong>Instagram</strong>
+                </div>
+            </div>
+
+            <!-- Compose Section -->
+            <div class="compose-section">
+                <h3>✍️ Compose Your Post</h3>
+                
+                <div class="form-group">
+                    <label for="postContent">Post Content</label>
+                    <textarea id="postContent" placeholder="What's on your mind? Share your thoughts, insights, or updates..."></textarea>
+                    <small id="charCount" style="color: #666;">0 characters</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="postTitle">Title (Optional)</label>
+                    <input type="text" id="postTitle" placeholder="Add a compelling title...">
+                </div>
+
+                <div class="form-group">
+                    <label for="hashtags">Hashtags</label>
+                    <input type="text" id="hashtags" placeholder="#marketing #business #growth">
+                </div>
+
+                <div class="schedule-section">
+                    <div class="form-group">
+                        <label for="scheduleDate">Schedule Date</label>
+                        <input type="date" id="scheduleDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="scheduleTime">Schedule Time</label>
+                        <input type="time" id="scheduleTime">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button class="btn" onclick="schedulePost()">
+                        📅 Schedule Post
+                    </button>
+                    <button class="btn btn-success" onclick="postNow()">
+                        ⚡ Post Now
+                    </button>
+                    <button class="btn btn-secondary" onclick="saveDraft()">
+                        💾 Save Draft
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Panel -->
+            <div id="statusPanel" class="status-panel">
+                <strong id="statusTitle">Success!</strong>
+                <p id="statusMessage">Your post has been scheduled successfully.</p>
+            </div>
+
+            <!-- Queue Section -->
+            <div class="queue-section">
+                <h3>📋 Scheduled Posts</h3>
+                <div id="queueContainer">
+                    <!-- Queue items will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedPlatforms = ['linkedin'];
+        let scheduledPosts = [];
+        let draftPosts = [];
+
+        // Platform selection
+        document.querySelectorAll('.platform-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const platform = this.dataset.platform;
+                
+                if (this.classList.contains('active')) {
+                    this.classList.remove('active');
+                    selectedPlatforms = selectedPlatforms.filter(p => p !== platform);
+                } else {
+                    this.classList.add('active');
+                    selectedPlatforms.push(platform);
+                }
+                
+                updateSelectedPlatforms();
+            });
+        });
+
+        // Character counter
+        document.getElementById('postContent').addEventListener('input', function() {
+            const count = this.value.length;
+            document.getElementById('charCount').textContent = `${count} characters`;
+            
+            // Platform-specific warnings
+            if (selectedPlatforms.includes('twitter') && count > 280) {
+                document.getElementById('charCount').style.color = '#dc3545';
+                document.getElementById('charCount').textContent += ' (Too long for Twitter/X)';
+            } else {
+                document.getElementById('charCount').style.color = '#666';
+            }
+        });
+
+        function updateSelectedPlatforms() {
+            console.log('Selected platforms:', selectedPlatforms);
+        }
+
+        function showStatus(title, message, isError = false) {
+            const panel = document.getElementById('statusPanel');
+            const titleEl = document.getElementById('statusTitle');
+            const messageEl = document.getElementById('statusMessage');
+            
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            
+            panel.className = isError ? 'status-panel error' : 'status-panel';
+            panel.style.display = 'block';
+            
+            setTimeout(() => {
+                panel.style.display = 'none';
+            }, 5000);
+        }
+
+        function schedulePost() {
+            const content = document.getElementById('postContent').value;
+            const title = document.getElementById('postTitle').value;
+            const hashtags = document.getElementById('hashtags').value;
+            const date = document.getElementById('scheduleDate').value;
+            const time = document.getElementById('scheduleTime').value;
+
+            if (!content.trim()) {
+                showStatus('Error', 'Please enter post content', true);
+                return;
+            }
+
+            if (!date || !time) {
+                showStatus('Error', 'Please select date and time for scheduling', true);
+                return;
+            }
+
+            if (selectedPlatforms.length === 0) {
+                showStatus('Error', 'Please select at least one platform', true);
+                return;
+            }
+
+            const post = {
+                id: Date.now(),
+                content,
+                title,
+                hashtags,
+                platforms: [...selectedPlatforms],
+                scheduledDate: date,
+                scheduledTime: time,
+                status: 'scheduled'
+            };
+
+            scheduledPosts.push(post);
+            addToQueue(post);
+            clearForm();
+            showStatus('Success!', `Post scheduled for ${date} at ${time} on ${selectedPlatforms.join(', ')}`);
+        }
+
+        function postNow() {
+            const content = document.getElementById('postContent').value;
+            
+            if (!content.trim()) {
+                showStatus('Error', 'Please enter post content', true);
+                return;
+            }
+
+            if (selectedPlatforms.length === 0) {
+                showStatus('Error', 'Please select at least one platform', true);
+                return;
+            }
+
+            // Simulate API call
+            showStatus('Demo Mode', `In a real app, this would post to: ${selectedPlatforms.join(', ')}. You'd need OAuth tokens and API integration.`);
+            clearForm();
+        }
+
+        function saveDraft() {
+            const content = document.getElementById('postContent').value;
+            const title = document.getElementById('postTitle').value;
+            const hashtags = document.getElementById('hashtags').value;
+
+            if (!content.trim()) {
+                showStatus('Error', 'Please enter post content', true);
+                return;
+            }
+
+            const draft = {
+                id: Date.now(),
+                content,
+                title,
+                hashtags,
+                platforms: [...selectedPlatforms],
+                savedAt: new Date().toLocaleString()
+            };
+
+            draftPosts.push(draft);
+            clearForm();
+            showStatus('Draft Saved', 'Your post has been saved as a draft');
+        }
+
+        function addToQueue(post) {
+            const container = document.getElementById('queueContainer');
+            const queueItem = document.createElement('div');
+            queueItem.className = 'queue-item';
+            queueItem.innerHTML = `
+                <div class="queue-content">
+                    <h4>${post.title || 'Post'} - ${post.platforms.join(', ')}</h4>
+                    <p>${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}</p>
+                    <small>Scheduled: ${post.scheduledDate} at ${post.scheduledTime}</small>
+                </div>
+                <div class="queue-actions">
+                    <button class="btn btn-secondary btn-small" onclick="editPost(${post.id})">Edit</button>
+                    <button class="btn btn-small" onclick="deletePost(${post.id})" style="background: #dc3545;">Delete</button>
+                </div>
+            `;
+            container.appendChild(queueItem);
+        }
+
+        function editPost(id) {
+            const post = scheduledPosts.find(p => p.id === id);
+            if (post) {
+                document.getElementById('postContent').value = post.content;
+                document.getElementById('postTitle').value = post.title;
+                document.getElementById('hashtags').value = post.hashtags;
+                document.getElementById('scheduleDate').value = post.scheduledDate;
+                document.getElementById('scheduleTime').value = post.scheduledTime;
+                
+                // Update platform selection
+                document.querySelectorAll('.platform-card').forEach(card => {
+                    const platform = card.dataset.platform;
+                    if (post.platforms.includes(platform)) {
+                        card.classList.add('active');
+                    } else {
+                        card.classList.remove('active');
+                    }
+                });
+                selectedPlatforms = [...post.platforms];
+                
+                deletePost(id);
+            }
+        }
+
+        function deletePost(id) {
+            scheduledPosts = scheduledPosts.filter(p => p.id !== id);
+            refreshQueue();
+        }
+
+        function refreshQueue() {
+            const container = document.getElementById('queueContainer');
+            container.innerHTML = '';
+            scheduledPosts.forEach(post => addToQueue(post));
+        }
+
+        function clearForm() {
+            document.getElementById('postContent').value = '';
+            document.getElementById('postTitle').value = '';
+            document.getElementById('hashtags').value = '';
+            document.getElementById('scheduleDate').value = '';
+            document.getElementById('scheduleTime').value = '';
+            document.getElementById('charCount').textContent = '0 characters';
+        }
+
+        // Set default date to today
+        document.getElementById('scheduleDate').valueAsDate = new Date();
+        document.getElementById('scheduleTime').value = new Date().toTimeString().slice(0,5);
+    </script>
+</body>
+</html>
